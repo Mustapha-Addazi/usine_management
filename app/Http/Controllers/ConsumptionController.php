@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NotifyMail;
 use App\Models\consumption;
 use App\Models\product;
+use App\Models\User;
 use App\Rules\UniqueConsumption;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class ConsumptionController extends Controller
@@ -77,6 +80,17 @@ class ConsumptionController extends Controller
         $product->stock -= $request->consumed;
         $product->cs = Consumption::where('product_id', $request->product_id)->avg('pf');
         $product->covering_day=$product->stock*$product->weightunit/$product->covering;
+        if ($product->covering_day < 14) {
+            
+            $users = User::where('IsAdmin', '!=', 'user')->get();
+    
+            foreach ($users as $user) {
+                $fullname = $user->name;
+                $email = $user->email;
+            
+                Mail::to($email)->send(new NotifyMail($fullname,$product->name,$product->stock,$product->unit,$product->covering_day));
+            }
+        }
         $product->save();
         // Sauvegarde dans la base de données
         
@@ -147,7 +161,7 @@ class ConsumptionController extends Controller
     $newProduct->stock -= $validatedData['consumed'];
     $newProduct->covering_day = $newProduct->stock*$newProduct->weightunit / $newProduct->covering;
     
-
+  
     // Mise à jour de la consommation
     $consumption->product_id = $validatedData['product_id'];
     $consumption->consumed = $validatedData['consumed'];
@@ -156,6 +170,29 @@ class ConsumptionController extends Controller
     $consumption->save();
     $newProduct->cs = Consumption::where('product_id', $newProduct->id)->avg('pf');
     $oldProduct->cs = Consumption::where('product_id', $oldProduct->id)->avg('pf');
+    if ($oldProduct->covering_day < 14) {
+            
+        $users = User::where('IsAdmin', '!=', 'user')->get();
+
+        foreach ($users as $user) {
+            $fullname = $user->name;
+            $email = $user->email;
+        
+            Mail::to($email)->send(new NotifyMail($fullname,$oldProduct->name,$oldProduct->stock,$oldProduct->unit,$oldProduct->covering_day));
+        }
+    }
+    $oldProduct->save();
+    if ($newProduct->covering_day < 14) {
+            
+        $users = User::where('IsAdmin', '!=', 'user')->get();
+
+        foreach ($users as $user) {
+            $fullname = $user->name;
+            $email = $user->email;
+        
+            Mail::to($email)->send(new NotifyMail($fullname,$newProduct->name,$newProduct->stock,$newProduct->unit,$newProduct->covering_day));
+        }
+    }
     $newProduct->save();
 
     return redirect()->route('consumption.put')->with([

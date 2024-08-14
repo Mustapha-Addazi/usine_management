@@ -42,7 +42,7 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown" v-if="user && user.IsAdmin !=='user'">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
                         <ion-icon name="create"></ion-icon>Create
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -69,7 +69,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                <Link class="nav-link" :href="route('statistic')" tabindex="-1" aria-disabled="true">Statistic</Link>
+                <Link class="nav-link active" :href="route('statistic')" tabindex="-1" aria-disabled="false">Statistic</Link>
                 </li>
                
                 

@@ -134,7 +134,7 @@ const getChartData = (product) => {
     labels: labels,
     datasets: [
       {
-        label: 'Consommation',
+        label: 'Consumption',
         backgroundColor: '#42A5F5',
         data: data
       }
